@@ -1,36 +1,30 @@
 import './scss/app.scss';
-import Axios from 'axios';
+import * as THREE from 'three';
 
-async function getData() {
-  const masterRef = await Axios.get(`${process.env.API_URL}`).then((resp) => {
-    return resp.data.refs[0].ref;
-  });
+// Scene
+const canvas: HTMLCanvasElement = document.querySelector('canvas.webgl');
+const scene = new THREE.Scene();
 
-  const dataRef = Axios.get(`${process.env.API_URL}/documents/search`, {
-    params: {ref: masterRef, access_token: process.env.ACCESS_TOKEN},
-  }).then((resp) => {
-    return resp.data.results;
-  });
-  return dataRef;
-}
-async function returnData() {
-  const data = await getData();
-  accessData(data);
-}
+// Object
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshBasicMaterial({color: 0xff0000});
+const mesh = new THREE.Mesh(geometry, material);
+scene.add(mesh);
 
-//returnData();
+// Sizes
+const sizes = {
+  width: 800,
+  height: 600,
+};
 
-function accessData(data: any) {
-  const title = document.createElement('h1');
-  const img = document.createElement('img');
-  // Lodash, currently included via a script, is required for this line to work
-  title.innerHTML = data[0].data.title[0].text;
-  document.body.appendChild(title);
+// Camera
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height);
+camera.position.z = 3;
+scene.add(camera);
 
-  const copy = document.createElement('p');
-  copy.innerHTML = data[0].data.description[0].text;
-  document.body.appendChild(copy);
-
-  img.setAttribute('src', data[0].data.hero_banner.url);
-  document.body.appendChild(img);
-}
+// Renderer
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+});
+renderer.setSize(sizes.width, sizes.height);
+renderer.render(scene, camera);

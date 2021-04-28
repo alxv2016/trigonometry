@@ -3,7 +3,6 @@ const path = require('path');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const Dotenv = require('dotenv-webpack');
 // Common webpack config
 module.exports = {
   // 1 base directory
@@ -16,7 +15,7 @@ module.exports = {
       import: path.resolve(__dirname, './src/index.ts'),
       dependOn: 'vendors',
     },
-    vendors: ['axios'],
+    vendors: ['three'],
   },
   // 3 the output file(s) Where webpack outputs the assets and bundles
   // https://webpack.js.org/configuration/output/#outputpath
@@ -44,9 +43,6 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'css/[name].[contenthash].css',
       chunkFilename: 'css/[id].[contenthash].css',
-    }),
-    new Dotenv({
-      path: './.env',
     }),
   ],
   // 6 Modules (Loaders)
