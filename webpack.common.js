@@ -15,7 +15,7 @@ module.exports = {
       import: path.resolve(__dirname, './src/index.ts'),
       dependOn: 'vendors',
     },
-    vendors: ['three'],
+    vendors: ['three', 'gsap'],
   },
   // 3 the output file(s) Where webpack outputs the assets and bundles
   // https://webpack.js.org/configuration/output/#outputpath
