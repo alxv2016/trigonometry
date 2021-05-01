@@ -3,13 +3,32 @@ import * as THREE from 'three';
 import {gsap} from 'gsap';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 
+interface DocumentFullScreen extends HTMLDocument {
+  webkitFullscreenElement?: Element;
+}
+
 // Canvas
 const canvas: HTMLCanvasElement = document.querySelector('canvas.webgl');
 // Sizes
 const sizes = {
-  width: 800,
-  height: 600,
+  width: window.innerWidth,
+  height: window.innerHeight,
 };
+// full screen resizing
+window.addEventListener('resize', () => {
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
+// Toggle fullscreen
+window.addEventListener('dblclick', () => {
+  const webkitDoc = document as DocumentFullScreen;
+  !document.fullscreenElement ? canvas.requestFullscreen() : document.exitFullscreen();
+  //!webkitDoc.webkitFullscreenElement ? canvas.requestFullscreen() : document.exitFullscreen();
+});
 // Scene
 const scene = new THREE.Scene();
 // Groups
@@ -66,6 +85,8 @@ controls.enableZoom = false;
 // Renderer
 const renderer = new THREE.WebGLRenderer({canvas});
 renderer.setSize(sizes.width, sizes.height);
+// Set pixel ratio to render only between 1 - 2 for performant only on high densitity displays
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.render(scene, camera);
 
 // Animations
