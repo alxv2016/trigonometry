@@ -48,8 +48,8 @@ const scene = new THREE.Scene();
 // group.add(cube3);
 
 // Object
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({color: 0xff0000});
+const geometry = new THREE.TorusGeometry(13, 4, 40, 40);
+const material = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
@@ -69,7 +69,7 @@ scene.add(mesh);
 const camera = new THREE.PerspectiveCamera(85, sizes.width / sizes.height, 0.1, 100);
 const aspectRatio = sizes.width / sizes.height;
 //const camera = new THREE.OrthographicCamera(-1 * aspectRatio, 1 * aspectRatio, 1, -1, 0.1 , 100)
-camera.position.z = 2;
+camera.position.z = 50;
 // camera.position.y = 2;
 // camera.position.z = 2;
 // console.log(camera.position.length())
