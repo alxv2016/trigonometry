@@ -3,6 +3,13 @@ import * as THREE from 'three';
 import {gsap} from 'gsap';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import * as dat from 'dat.gui';
+import colorAsset from './assets/door/color.jpg';
+import alphaAsset from './assets/door/alpha.jpg';
+import metalnessAsset from './assets/door/metalness.jpg';
+import heightAsset from './assets/door/height.jpg';
+import normalAsset from './assets/door/normal.jpg';
+import roughnessAsset from './assets/door/roughness.jpg';
+import ambientAsset from './assets/door/ambientOcclusion.jpg';
 
 interface DocumentFullScreen extends HTMLDocument {
   webkitFullscreenElement?: Element;
@@ -62,11 +69,27 @@ const scene = new THREE.Scene();
 // group.add(cube2);
 // group.add(cube3);
 
+// Loading Management
+const loadingManger = new THREE.LoadingManager();
+loadingManger.onStart = () => console.log('loading');
+loadingManger.onLoad = () => console.log('loaded');
+const textureLoader = new THREE.TextureLoader(loadingManger);
+// Textures
+const colorTexture = textureLoader.load(colorAsset);
+const alphaTexture = textureLoader.load(alphaAsset);
+const normalTexture = textureLoader.load(normalAsset);
+const metalTexture = textureLoader.load(metalnessAsset);
+const heightTexture = textureLoader.load(heightAsset);
+const ambientTexture = textureLoader.load(ambientAsset);
+const roughnessTexture = textureLoader.load(roughnessAsset);
+
 // Object
-const geometry = new THREE.TorusGeometry(13, 4, 40, 40);
-const material = new THREE.MeshBasicMaterial({color: parameters.color, wireframe: false});
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshBasicMaterial({map: colorTexture, wireframe: false});
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
+
+console.log(geometry.attributes.uv);
 // debug
 debugUi.add(mesh.position, 'y', -3, 3, 0.01).name('Elevation');
 debugUi.add(mesh.rotation, 'x', -3, 3, 0.01).name('Rotate X');
@@ -89,7 +112,7 @@ scene.add(axesHelper);
 const camera = new THREE.PerspectiveCamera(85, sizes.width / sizes.height, 0.1, 100);
 const aspectRatio = sizes.width / sizes.height;
 //const camera = new THREE.OrthographicCamera(-1 * aspectRatio, 1 * aspectRatio, 1, -1, 0.1 , 100)
-camera.position.z = 50;
+camera.position.z = 2;
 // camera.position.y = 2;
 // camera.position.z = 2;
 // console.log(camera.position.length())
