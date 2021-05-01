@@ -1,6 +1,7 @@
 import './scss/app.scss';
 import * as THREE from 'three';
 import {gsap} from 'gsap';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 
 // Canvas
 const canvas: HTMLCanvasElement = document.querySelector('canvas.webgl');
@@ -45,40 +46,40 @@ scene.add(mesh);
 // scene.add(axesHelper);
 
 // Camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height);
-camera.position.z = 3;
-// camera.position.y = 1;
-// camera.position.x = 1;
+// last two values is camera's field of view to reduce rendering of far away objects
+const camera = new THREE.PerspectiveCamera(85, sizes.width / sizes.height, 0.1, 100);
+const aspectRatio = sizes.width / sizes.height;
+//const camera = new THREE.OrthographicCamera(-1 * aspectRatio, 1 * aspectRatio, 1, -1, 0.1 , 100)
+camera.position.z = 2;
+// camera.position.y = 2;
+// camera.position.z = 2;
+// console.log(camera.position.length())
+//camera.lookAt(mesh.position);
 scene.add(camera);
 
-// camera.lookAt(mesh.position)
-const clock = new THREE.Clock();
+// controls
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.enablePan = false;
+controls.enableZoom = false;
+
 // Renderer
 const renderer = new THREE.WebGLRenderer({canvas});
 renderer.setSize(sizes.width, sizes.height);
 renderer.render(scene, camera);
 
-gsap.to(mesh.position, {
-  duration: 1,
-  x: 3,
-  yoyo: true,
-  repeat: -1,
-});
+// Animations
+const clock = new THREE.Clock();
+// gsap.to(mesh.rotation, {
+//   duration: 4,
+//   ease: 'none',
+//   y: Math.PI * 2,
+//   repeat: -1,
+// });
 gsap.ticker.add(() => {
   const elapsedTime = clock.getElapsedTime();
-  camera.lookAt(mesh.position);
+  controls.update();
   renderer.render(scene, camera);
 });
-
-// Animations
-// const tick = () => {
-//   console.log('tick');
-//   // const elapsedTime = clock.getElapsedTime();
-//   // group.position.y = Math.sin(elapsedTime);
-//   // group.position.x = Math.cos(elapsedTime);
-//   // camera.lookAt(group.position);
-//   renderer.render(scene, camera);
-//   window.requestAnimationFrame(tick);
-// }
 
 // tick();
