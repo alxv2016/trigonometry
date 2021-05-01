@@ -2,11 +2,26 @@ import './scss/app.scss';
 import * as THREE from 'three';
 import {gsap} from 'gsap';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import * as dat from 'dat.gui';
 
 interface DocumentFullScreen extends HTMLDocument {
   webkitFullscreenElement?: Element;
 }
-
+// Debug
+const debugUi = new dat.GUI();
+const parameters = {
+  color: 0xff0000,
+  spin: () => {
+    gsap.to(mesh.rotation, {
+      y: mesh.rotation.y + Math.PI * 2,
+    });
+  },
+};
+debugUi
+  .addColor(parameters, 'color')
+  .name('Color')
+  .onChange(() => material.color.set(parameters.color));
+debugUi.add(parameters, 'spin').name('Spin');
 // Canvas
 const canvas: HTMLCanvasElement = document.querySelector('canvas.webgl');
 // Sizes
@@ -49,9 +64,14 @@ const scene = new THREE.Scene();
 
 // Object
 const geometry = new THREE.TorusGeometry(13, 4, 40, 40);
-const material = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
+const material = new THREE.MeshBasicMaterial({color: parameters.color, wireframe: false});
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
+// debug
+debugUi.add(mesh.position, 'y', -3, 3, 0.01).name('Elevation');
+debugUi.add(mesh.rotation, 'x', -3, 3, 0.01).name('Rotate X');
+debugUi.add(mesh.rotation, 'y', -3, 3, 0.01).name('Rotate Y');
+debugUi.add(mesh.material, 'wireframe').name('Show wires');
 
 // // Positions
 // mesh.position.set(0.7, -0.6, 1);
@@ -61,8 +81,8 @@ scene.add(mesh);
 // mesh.rotation.y = Math.PI * 0.25;
 // mesh.rotation.x = Math.PI * 0.25;
 // Axes helper
-// const axesHelper = new THREE.AxesHelper(2);
-// scene.add(axesHelper);
+const axesHelper = new THREE.AxesHelper(2);
+scene.add(axesHelper);
 
 // Camera
 // last two values is camera's field of view to reduce rendering of far away objects
