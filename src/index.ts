@@ -10,6 +10,7 @@ import heightAsset from './assets/door/height.jpg';
 import normalAsset from './assets/door/normal.jpg';
 import roughnessAsset from './assets/door/roughness.jpg';
 import ambientAsset from './assets/door/ambientOcclusion.jpg';
+import checkboxAsset from './assets/minecraft.png';
 
 interface DocumentFullScreen extends HTMLDocument {
   webkitFullscreenElement?: Element;
@@ -82,10 +83,11 @@ const metalTexture = textureLoader.load(metalnessAsset);
 const heightTexture = textureLoader.load(heightAsset);
 const ambientTexture = textureLoader.load(ambientAsset);
 const roughnessTexture = textureLoader.load(roughnessAsset);
+const checkboxTexture = textureLoader.load(checkboxAsset);
 
 // Object
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({map: colorTexture, wireframe: false});
+const material = new THREE.MeshBasicMaterial({map: checkboxTexture, wireframe: false});
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
@@ -95,6 +97,11 @@ debugUi.add(mesh.position, 'y', -3, 3, 0.01).name('Elevation');
 debugUi.add(mesh.rotation, 'x', -3, 3, 0.01).name('Rotate X');
 debugUi.add(mesh.rotation, 'y', -3, 3, 0.01).name('Rotate Y');
 debugUi.add(mesh.material, 'wireframe').name('Show wires');
+
+// Mipmapping
+checkboxTexture.generateMipmaps = false;
+checkboxTexture.minFilter = THREE.NearestFilter;
+checkboxTexture.magFilter = THREE.NearestFilter;
 
 // // Positions
 // mesh.position.set(0.7, -0.6, 1);
