@@ -3,6 +3,7 @@ const path = require('path');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 // Common webpack config
 module.exports = {
   // 1 base directory
@@ -35,6 +36,11 @@ module.exports = {
   // https://webpack.js.org/configuration/plugins/#plugins
   plugins: [
     new CleanWebpackPlugin(),
+    // new CopyPlugin({
+    //   patterns: [
+    //     { from: path.resolve(__dirname, './static') }
+    //   ]
+    // }),
     new HtmlWebpackPlugin({
       // favicon: '',
       template: path.resolve(__dirname, './src/template.html'),
