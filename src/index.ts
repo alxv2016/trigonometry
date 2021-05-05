@@ -69,6 +69,27 @@ gui
     gem.material.specular.set(colors.specular);
   });
 
+// Particles
+const bitsGeometry = new THREE.IcosahedronBufferGeometry(0.125, 32);
+const bitsMaterial = new THREE.MeshPhongMaterial({
+  map: baseTexture,
+  aoMap: ambientTexture,
+  normalMap: normalTexture,
+  shininess: 64,
+  specular: colors.specular,
+  bumpMap: roughnessTexture,
+  displacementMap: dispTexture,
+  displacementScale: 0.12,
+});
+bitsGeometry.setAttribute('uv3', new THREE.BufferAttribute(bitsGeometry.attributes.uv.array, 2));
+
+for (let i = 0; i < 100; i++) {
+  const bit = new THREE.Mesh(bitsGeometry, bitsMaterial);
+  bit.name = 'bit';
+  bit.position.set((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
+  scene.add(bit);
+}
+
 // Lights
 const ambientLight = new THREE.AmbientLight('white', 0.5);
 const pointLight = new THREE.PointLight('white', 1);
@@ -79,6 +100,8 @@ pointLight.position.z = 4;
 // Fog
 const fog = new THREE.Fog('#01062D', 1, 8);
 scene.fog = fog;
+
+console.log(scene);
 
 // Add to scene
 scene.add(ambientLight, pointLight, gem);
@@ -95,6 +118,11 @@ renderer.setClearColor('#01062D');
 //const clock = new THREE.Clock()
 
 gsap.ticker.add((time) => {
+  const bits = scene.children.filter((mesh) => mesh.name === 'bit');
+  bits.forEach((child) => {
+    child.rotation.x = Math.cos(time);
+    child.rotation.y = Math.sin(time);
+  });
   gem.rotation.x = Math.cos(time / 2);
   gem.rotation.y = Math.sin(time / 2);
   // camera.lookAt(mesh.position);
