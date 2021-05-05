@@ -52,22 +52,16 @@ const gem = new THREE.Mesh(
     aoMap: ambientTexture,
     normalMap: normalTexture,
     shininess: 64,
-    reflectivity: 0.2,
     specular: colors.specular,
     bumpMap: roughnessTexture,
-    bumpScale: 0.1,
     displacementMap: dispTexture,
     displacementScale: 0.12,
-    displacementBias: 0.2,
   })
 );
 gem.geometry.setAttribute('uv2', new THREE.BufferAttribute(gem.geometry.attributes.uv.array, 2));
 gui.add(gem.material, 'wireframe').name('Wireframe');
 gui.add(gem.material, 'shininess', 0, 100, 1).name('Shininess');
-gui.add(gem.material, 'reflectivity', 0, 1, 0.01).name('Reflections');
-gui.add(gem.material, 'bumpScale', 0, 1, 0.01).name('Bumps');
 gui.add(gem.material, 'displacementScale', 0, 1, 0.01).name('Displacements');
-gui.add(gem.material, 'displacementBias', 0, 1, 0.01).name('Displacements bias');
 gui
   .addColor(colors, 'specular')
   .name('Specular hue')
