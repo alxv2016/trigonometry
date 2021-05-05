@@ -71,21 +71,27 @@ gui
 
 // Lights
 const ambientLight = new THREE.AmbientLight('white', 0.5);
-const pointLight = new THREE.PointLight('white', 0.7);
+const pointLight = new THREE.PointLight('white', 1);
 pointLight.position.x = 2;
 pointLight.position.y = 3;
 pointLight.position.z = 4;
+
+// Fog
+const fog = new THREE.Fog('#01062D', 1, 8);
+scene.fog = fog;
 
 // Add to scene
 scene.add(ambientLight, pointLight, gem);
 // Add camera and define it's Z axis and FOV
 const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 100);
 camera.position.z = 6;
+gui.add(camera.position, 'z', 0, 10, 0.01).name('Camera');
 // Render scene & camera
 const renderer = new THREE.WebGLRenderer({canvas});
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.render(scene, camera);
+renderer.setClearColor('#01062D');
 //const clock = new THREE.Clock()
 
 gsap.ticker.add((time) => {
