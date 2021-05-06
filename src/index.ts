@@ -55,7 +55,7 @@ const gem = new THREE.Mesh(
     specular: colors.specular,
     bumpMap: roughnessTexture,
     displacementMap: dispTexture,
-    displacementScale: 0.12,
+    displacementScale: 0.45,
   })
 );
 gem.geometry.setAttribute('uv2', new THREE.BufferAttribute(gem.geometry.attributes.uv.array, 2));
@@ -91,11 +91,11 @@ for (let i = 0; i < 100; i++) {
 }
 
 // Lights
-const ambientLight = new THREE.AmbientLight('white', 0.5);
+const ambientLight = new THREE.AmbientLight('white');
 const pointLight = new THREE.PointLight('white', 1);
-pointLight.position.x = 2;
-pointLight.position.y = 3;
-pointLight.position.z = 4;
+const pointLight2 = new THREE.PointLight('blue', 1);
+pointLight.position.set(1, 1, 1);
+pointLight2.position.set(-1, 1, 1);
 
 // Fog
 const fog = new THREE.Fog('#01062D', 1, 8);
@@ -104,7 +104,7 @@ scene.fog = fog;
 console.log(scene);
 
 // Add to scene
-scene.add(ambientLight, pointLight, gem);
+scene.add(ambientLight, pointLight, pointLight2, gem);
 // Add camera and define it's Z axis and FOV
 const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 100);
 camera.position.z = 6;
