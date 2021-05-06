@@ -2,7 +2,7 @@ import './scss/app.scss';
 import * as THREE from 'three';
 import {gsap} from 'gsap';
 import * as dat from 'dat.gui';
-import matCapAsset from './assets/matcaps/8.png';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import base from './assets/gem/color.jpg';
 import normal from './assets/gem/normal.jpg';
 import roughness from './assets/gem/rough.jpg';
@@ -27,6 +27,7 @@ window.addEventListener('resize', () => {
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
+
 // UI Debugger
 const gui = new dat.GUI();
 const colors = {
@@ -83,7 +84,7 @@ const bitsMaterial = new THREE.MeshPhongMaterial({
 });
 bitsGeometry.setAttribute('uv3', new THREE.BufferAttribute(bitsGeometry.attributes.uv.array, 2));
 
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 40; i++) {
   const bit = new THREE.Mesh(bitsGeometry, bitsMaterial);
   bit.name = 'bit';
   bit.position.set((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
@@ -97,6 +98,8 @@ const pointLight2 = new THREE.PointLight('blue', 1);
 pointLight.position.set(1, 1, 1);
 pointLight2.position.set(-1, 1, 1);
 
+pointLight.castShadow = true;
+
 // Fog
 const fog = new THREE.Fog('#01062D', 1, 8);
 scene.fog = fog;
@@ -109,6 +112,13 @@ scene.add(ambientLight, pointLight, pointLight2, gem);
 const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 100);
 camera.position.z = 6;
 gui.add(camera.position, 'z', 0, 10, 0.01).name('Camera');
+
+// controls
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.enablePan = false;
+controls.enableZoom = false;
+
 // Render scene & camera
 const renderer = new THREE.WebGLRenderer({canvas});
 renderer.setSize(sizes.width, sizes.height);
