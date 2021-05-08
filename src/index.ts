@@ -3,11 +3,12 @@ import * as THREE from 'three';
 import {gsap} from 'gsap';
 import * as dat from 'dat.gui';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import base from './assets/gem/color.jpg';
-import normal from './assets/gem/normal.jpg';
-import roughness from './assets/gem/rough.jpg';
-import disp from './assets/gem/disp.png';
-import ambient from './assets/gem/ambient.jpg';
+import basecolor from './assets/carbon/basecolor.jpg';
+import normal from './assets/carbon/normal.jpg';
+import roughness from './assets/carbon/roughness.jpg';
+import metallic from './assets/carbon/metallic.jpg';
+import ambient from './assets/carbon/ambientOcclusion.jpg';
+import height from './assets/carbon/height.png';
 
 // Create a canvas
 const canvas: HTMLCanvasElement = document.querySelector('canvas.webgl');
@@ -30,10 +31,38 @@ window.addEventListener('resize', () => {
 // Init a THREE scene
 const scene = new THREE.Scene();
 
+// Textures
+const textureLoader = new THREE.TextureLoader();
+const baseTexture = textureLoader.load(basecolor);
+const heightTexture = textureLoader.load(height);
+const normalTexture = textureLoader.load(normal);
+const roughnessTexture = textureLoader.load(roughness);
+const ambientTexture = textureLoader.load(ambient);
+const metallicTexture = textureLoader.load(metallic);
+
 // Add geometries & material
-const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-const material = new THREE.MeshNormalMaterial();
-const cube1 = new THREE.Mesh(geometry, material);
+const geometry = new THREE.SphereGeometry(0.075, 64, 64);
+const material = new THREE.MeshPhysicalMaterial({
+  color: 'lightblue',
+  map: baseTexture,
+  roughness: 0.75,
+  metalness: 0.2,
+  aoMap: ambientTexture,
+  aoMapIntensity: 20,
+  normalMap: normalTexture,
+  displacementMap: heightTexture,
+  displacementScale: 0.01,
+  reflectivity: 1,
+  clearcoat: 1,
+  clearcoatMap: normalTexture,
+  clearcoatRoughness: 0.25,
+  metalnessMap: metallicTexture,
+  roughnessMap: roughnessTexture,
+  clearcoatNormalMap: normalTexture,
+  clearcoatNormalScale: new THREE.Vector2(2, 2),
+  sheen: new THREE.Color('lightblue'),
+});
+geometry.setAttribute('uv2', new THREE.BufferAttribute(geometry.attributes.uv.array, 2));
 const group = new THREE.Group();
 const grid = 4;
 for (let i = 0; i < grid; i++) {
@@ -43,6 +72,8 @@ for (let i = 0; i < grid; i++) {
       cube.position.x = i * 0.4;
       cube.position.y = j * 0.4;
       cube.position.z = k * 0.4;
+      cube.castShadow = true;
+      cube.receiveShadow = true;
       group.add(cube);
     }
   }
@@ -54,8 +85,29 @@ group.position.copy(center).multiplyScalar(-1);
 
 const axesHelper = new THREE.AxesHelper(5);
 
+// lights
+const ambientLight = new THREE.AmbientLight('white', 0.2);
+const directionalLight = new THREE.DirectionalLight('white', 0.4);
+directionalLight.castShadow = true;
+directionalLight.position.set(1, 2, 1);
+directionalLight.shadow.mapSize.width = 1024;
+directionalLight.shadow.mapSize.height = 1024;
+directionalLight.shadow.camera.near = 1;
+directionalLight.shadow.camera.far = 4;
+directionalLight.shadow.camera.top = 2;
+directionalLight.shadow.camera.right = 2;
+directionalLight.shadow.camera.bottom = -2;
+directionalLight.shadow.camera.left = -2;
+directionalLight.shadow.radius = 8;
+
+const lightHelper = new THREE.DirectionalLightHelper(directionalLight);
+const lightCameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+lightHelper.visible = false;
+lightCameraHelper.visible = false;
+axesHelper.visible = false;
+
 // Add to scene
-scene.add(axesHelper, group);
+scene.add(axesHelper, group, ambientLight, directionalLight, lightHelper, lightCameraHelper);
 // Add camera and define it's Z axis and FOV
 const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 100);
 camera.position.z = 6;
@@ -64,12 +116,13 @@ camera.position.z = 6;
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.enableZoom = false;
+controls.enableZoom = true;
 
 // Render scene & camera
 const renderer = new THREE.WebGLRenderer({canvas});
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
 renderer.render(scene, camera);
 renderer.setClearColor('#01062D');
 
@@ -83,20 +136,19 @@ gsap.to(childrens, {
   y: 2,
   x: 2,
   z: 2,
-  repeat: -1,
-  yoyo: true,
-  yoyoEase: true,
-  ease: 'power3.inOut',
-  duration: 3,
+  duration: 1.75,
   stagger: {
-    from: 'center',
-    amount: 2.75,
+    yoyo: true,
+    repeat: -1,
+    grid: [4, 4],
+    from: 'start',
+    amount: 1.75,
   },
 });
 
 gsap.ticker.add((time) => {
   gsap.to(rotations, {
-    y: Math.PI * time,
+    y: Math.PI + time / 2,
     x: Math.cos(time),
   });
   renderer.render(scene, camera);
