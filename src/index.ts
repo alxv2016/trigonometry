@@ -30,49 +30,32 @@ window.addEventListener('resize', () => {
 // Init a THREE scene
 const scene = new THREE.Scene();
 
-// Load texture
-const textureLoader = new THREE.TextureLoader();
-
 // Add geometries & material
-const material = new THREE.MeshPhongMaterial({
-  reflectivity: 1,
-  shininess: 100,
-});
-const plane = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), material);
-const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1, 0.1, 64, 64), material);
-const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.1, 64, 64), material);
+const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+const material = new THREE.MeshNormalMaterial();
+const cube1 = new THREE.Mesh(geometry, material);
+const group = new THREE.Group();
+const grid = 4;
+for (let i = 0; i < grid; i++) {
+  for (let j = 0; j < grid; j++) {
+    for (let k = 0; k < grid; k++) {
+      const cube = new THREE.Mesh(geometry, material);
+      cube.position.x = i * 0.4;
+      cube.position.y = j * 0.4;
+      cube.position.z = k * 0.4;
+      group.add(cube);
+    }
+  }
+}
 
-const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 64), material);
+const center = new THREE.Vector3();
+new THREE.Box3().setFromObject(group).getCenter(center);
+group.position.copy(center).multiplyScalar(-1);
 
-plane.rotation.x = -Math.PI * 0.5;
-plane.position.y = -0.5;
-ring1.position.y = 1;
-ring2.position.y = 1;
-sphere.position.y = 1;
-
-sphere.castShadow = true;
-sphere.receiveShadow = true;
-ring1.castShadow = true;
-ring1.receiveShadow = true;
-ring2.castShadow = true;
-ring2.receiveShadow = true;
-plane.receiveShadow = true;
-
-scene.add(plane, ring1, ring2, sphere);
-// Lights
-const ambientLight = new THREE.AmbientLight('white', 0.5);
-const directionalLight = new THREE.DirectionalLight('white', 0.5);
-directionalLight.position.set(1, 2, 1);
-directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.width = 512;
-directionalLight.shadow.mapSize.height = 512;
-directionalLight.shadow.camera.near = 0.4;
-directionalLight.shadow.camera.far = 8;
-directionalLight.shadow.radius = 2;
-const helper = new THREE.DirectionalLightHelper(directionalLight);
-scene.add(ambientLight, directionalLight);
+const axesHelper = new THREE.AxesHelper(5);
 
 // Add to scene
+scene.add(axesHelper, group);
 // Add camera and define it's Z axis and FOV
 const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 100);
 camera.position.z = 6;
@@ -81,26 +64,59 @@ camera.position.z = 6;
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.enableZoom = true;
+controls.enableZoom = false;
 
 // Render scene & camera
 const renderer = new THREE.WebGLRenderer({canvas});
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
 renderer.render(scene, camera);
 renderer.setClearColor('#01062D');
 
 const clock = new THREE.Clock();
 
-const tick = () => {
-  const elapsedTime = clock.getElapsedTime();
-  ring1.rotation.y = (Math.PI * elapsedTime) / 2;
-  ring1.rotation.x = Math.sin(elapsedTime / 2);
-  ring2.rotation.y = Math.PI * elapsedTime;
-  ring2.rotation.x = Math.sin(elapsedTime);
-  renderer.render(scene, camera);
-  window.requestAnimationFrame(tick);
-};
+const childrens = group.children.map((child) => child.scale);
+const rotations = group.children.map((child) => child.rotation);
 
-tick();
+console.log(gsap.ticker.time);
+gsap.to(childrens, {
+  y: 2,
+  x: 2,
+  z: 2,
+  repeat: -1,
+  yoyo: true,
+  yoyoEase: true,
+  ease: 'power3.inOut',
+  duration: 3,
+  stagger: {
+    from: 'center',
+    amount: 2.75,
+  },
+});
+
+gsap.ticker.add((time) => {
+  gsap.to(rotations, {
+    y: Math.PI * time,
+    x: Math.cos(time),
+  });
+  renderer.render(scene, camera);
+  controls.update();
+});
+
+// const tick = () => {
+//   const elapsedTime = clock.getElapsedTime();
+//   gsap.to(childrens, {
+//     y: Math.sin(elapsedTime),
+//     //z: Math.sin(2),
+//     yoyo: true,
+//     stagger: {
+//       from: 'start',
+//       amount: 1.25
+//     },
+//   })
+//   renderer.render(scene, camera);
+//   controls.update();
+//   window.requestAnimationFrame(tick);
+// };
+
+// tick();
