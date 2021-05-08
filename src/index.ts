@@ -27,114 +27,80 @@ window.addEventListener('resize', () => {
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
-
-// UI Debugger
-const gui = new dat.GUI();
-const colors = {
-  specular: '#0f72fc',
-};
 // Init a THREE scene
 const scene = new THREE.Scene();
 
 // Load texture
 const textureLoader = new THREE.TextureLoader();
-const baseTexture = textureLoader.load(base);
-const normalTexture = textureLoader.load(normal);
-const roughnessTexture = textureLoader.load(roughness);
-const dispTexture = textureLoader.load(disp);
-const ambientTexture = textureLoader.load(ambient);
 
 // Add geometries & material
-const gem = new THREE.Mesh(
-  new THREE.SphereGeometry(1, 100, 100),
-  new THREE.MeshPhongMaterial({
-    wireframe: false,
-    map: baseTexture,
-    aoMap: ambientTexture,
-    normalMap: normalTexture,
-    shininess: 64,
-    specular: colors.specular,
-    bumpMap: roughnessTexture,
-    displacementMap: dispTexture,
-    displacementScale: 0.45,
-  })
-);
-gem.geometry.setAttribute('uv2', new THREE.BufferAttribute(gem.geometry.attributes.uv.array, 2));
-gui.add(gem.material, 'wireframe').name('Wireframe');
-gui.add(gem.material, 'shininess', 0, 100, 1).name('Shininess');
-gui.add(gem.material, 'displacementScale', 0, 1, 0.01).name('Displacements');
-gui
-  .addColor(colors, 'specular')
-  .name('Specular hue')
-  .onChange(() => {
-    gem.material.specular.set(colors.specular);
-  });
-
-// Particles
-const bitsGeometry = new THREE.IcosahedronBufferGeometry(0.125, 32);
-const bitsMaterial = new THREE.MeshPhongMaterial({
-  map: baseTexture,
-  aoMap: ambientTexture,
-  normalMap: normalTexture,
-  shininess: 64,
-  specular: colors.specular,
-  bumpMap: roughnessTexture,
-  displacementMap: dispTexture,
-  displacementScale: 0.12,
+const material = new THREE.MeshPhongMaterial({
+  reflectivity: 1,
+  shininess: 100,
 });
-bitsGeometry.setAttribute('uv3', new THREE.BufferAttribute(bitsGeometry.attributes.uv.array, 2));
+const plane = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), material);
+const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1, 0.1, 64, 64), material);
+const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.1, 64, 64), material);
 
-for (let i = 0; i < 40; i++) {
-  const bit = new THREE.Mesh(bitsGeometry, bitsMaterial);
-  bit.name = 'bit';
-  bit.position.set((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
-  scene.add(bit);
-}
+const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 64), material);
 
+plane.rotation.x = -Math.PI * 0.5;
+plane.position.y = -0.5;
+ring1.position.y = 1;
+ring2.position.y = 1;
+sphere.position.y = 1;
+
+sphere.castShadow = true;
+sphere.receiveShadow = true;
+ring1.castShadow = true;
+ring1.receiveShadow = true;
+ring2.castShadow = true;
+ring2.receiveShadow = true;
+plane.receiveShadow = true;
+
+scene.add(plane, ring1, ring2, sphere);
 // Lights
-const ambientLight = new THREE.AmbientLight('white');
-const pointLight = new THREE.PointLight('white', 1);
-const pointLight2 = new THREE.PointLight('blue', 1);
-pointLight.position.set(1, 1, 1);
-pointLight2.position.set(-1, 1, 1);
-
-pointLight.castShadow = true;
-
-// Fog
-const fog = new THREE.Fog('#01062D', 1, 8);
-scene.fog = fog;
-
-console.log(scene);
+const ambientLight = new THREE.AmbientLight('white', 0.5);
+const directionalLight = new THREE.DirectionalLight('white', 0.5);
+directionalLight.position.set(1, 2, 1);
+directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.width = 512;
+directionalLight.shadow.mapSize.height = 512;
+directionalLight.shadow.camera.near = 0.4;
+directionalLight.shadow.camera.far = 8;
+directionalLight.shadow.radius = 2;
+const helper = new THREE.DirectionalLightHelper(directionalLight);
+scene.add(ambientLight, directionalLight);
 
 // Add to scene
-scene.add(ambientLight, pointLight, pointLight2, gem);
 // Add camera and define it's Z axis and FOV
 const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 100);
 camera.position.z = 6;
-gui.add(camera.position, 'z', 0, 10, 0.01).name('Camera');
 
 // controls
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.enableZoom = false;
+controls.enableZoom = true;
 
 // Render scene & camera
 const renderer = new THREE.WebGLRenderer({canvas});
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
 renderer.render(scene, camera);
 renderer.setClearColor('#01062D');
-//const clock = new THREE.Clock()
 
-gsap.ticker.add((time) => {
-  const bits = scene.children.filter((mesh) => mesh.name === 'bit');
-  bits.forEach((child) => {
-    child.rotation.x = Math.cos(time);
-    child.rotation.y = Math.sin(time);
-  });
-  gem.rotation.x = Math.cos(time / 2);
-  gem.rotation.y = Math.sin(time / 2);
-  // camera.lookAt(mesh.position);
+const clock = new THREE.Clock();
+
+const tick = () => {
+  const elapsedTime = clock.getElapsedTime();
+  ring1.rotation.y = (Math.PI * elapsedTime) / 2;
+  ring1.rotation.x = Math.sin(elapsedTime / 2);
+  ring2.rotation.y = Math.PI * elapsedTime;
+  ring2.rotation.x = Math.sin(elapsedTime);
   renderer.render(scene, camera);
-});
+  window.requestAnimationFrame(tick);
+};
+
+tick();
