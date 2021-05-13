@@ -57,36 +57,36 @@ class Wave {
 // let yspeed = 0.0025;
 // let xangle = 0;
 // let yangle = 0;
-// // const total = 4;
-// // const slice = Math.PI * 2 / total;
+const total = 20;
+const slice = (Math.PI * 2) / total;
 
-// let angles: any = [];
+let angles: any = [];
 // // let angleV = 0.05;
-// let angleV: any = [];
+let angleV: any = [];
 // let radius = 2;
 // let offset = 8;
 // let total = 40;
 // let cur: any = [];
 
-let waves: any = [];
-
-let wave = new Wave(2, 8, 0.001);
-function random(min: number, max: number) {
-  return Math.random() * (max - min) + min;
+for (let i = 0; i < total; i++) {
+  angles[i] = i / 6;
 }
 
-for (let i = 0; i < 5; i++) {
-  waves[i] = new Wave(random(2, 8), random(2, 20), random(1, 2));
-}
+// let waves: any = [];
 
-for (let i = 0; i < 40; i++) {
-  let y = 0;
-  for (wave of waves) {
-    y += wave.evaluate(i);
-  }
+// let wave = new Wave(2, 8, 0.001);
+// function random(min: number, max: number) {
+//   return Math.random() * (max - min) + min;
+// }
+
+// for (let i = 0; i < 5; i++) {
+//   waves[i] = new Wave(random(0, 8), random(0, 8), random(1, 2));
+// }
+
+for (let i = 0; i < total; i++) {
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.x = i * 2;
-  mesh.position.y = y;
+  mesh.position.x = Math.cos(slice * i) * 30;
+  mesh.position.y = Math.sin(slice * i) * 30;
   group.add(mesh);
 }
 
@@ -100,7 +100,7 @@ axesHelper.visible = true;
 // Add to scene
 scene.add(axesHelper, group);
 // Add camera and define it's Z axis and FOV
-const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 100);
+const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 800);
 camera.position.z = 95;
 
 // controls
@@ -139,12 +139,10 @@ const tick = () => {
   // })
 
   group.children.forEach((m, i) => {
-    let y: number = 0;
-    for (wave of waves) {
-      y += wave.evaluate(i);
-    }
-    m.position.y = y;
-    wave.update(0.001);
+    m.position.x = Math.cos(slice * i) * Math.cos(angles[i] + 0.8) * 10;
+    m.position.y = Math.sin(slice * i) * Math.cos(angles[i] + 0.8) * 10;
+    //wave.update(0.001);
+    angles[i] += 0.02;
   });
 
   renderer.render(scene, camera);
