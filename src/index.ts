@@ -36,32 +36,57 @@ const material = new THREE.MeshNormalMaterial();
 // const mesh = new THREE.Mesh(geometry, material);
 const group = new THREE.Group();
 
-// let radius = 2;
-let xRad = 4;
-const yRad = 4;
-let xspeed = 0.0025;
-let yspeed = 0.0025;
-let xangle = 0;
-let yangle = 0;
-// const total = 4;
-// const slice = Math.PI * 2 / total;
-
-let angles: any = [];
-// let angleV = 0.05;
-let angleV: any = [];
-let radius = 2;
-let offset = 8;
-let total = 40;
-
-for (let i = 0; i < total; i++) {
-  angles[i] = ((i * total) / Math.PI) * 2;
-  angleV[i] = i / 100;
+class Wave {
+  constructor(public amp: number, public period: number, public phase: number) {
+    this.amp = amp;
+    this.period = period;
+    this.phase = phase;
+  }
+  evaluate(x: number) {
+    return Math.sin(this.phase + (Math.PI * 2 * x) / this.period) * this.amp;
+  }
+  update(x: number) {
+    this.phase += x;
+  }
 }
 
-for (let i = 0; i < angles.length; i++) {
+// let radius = 2;
+// let xRad = 4;
+// const yRad = 4;
+// let xspeed = 0.0025;
+// let yspeed = 0.0025;
+// let xangle = 0;
+// let yangle = 0;
+// // const total = 4;
+// // const slice = Math.PI * 2 / total;
+
+// let angles: any = [];
+// // let angleV = 0.05;
+// let angleV: any = [];
+// let radius = 2;
+// let offset = 8;
+// let total = 40;
+// let cur: any = [];
+
+let waves: any = [];
+
+let wave = new Wave(2, 8, 0.001);
+function random(min: number, max: number) {
+  return Math.random() * (max - min) + min;
+}
+
+for (let i = 0; i < 5; i++) {
+  waves[i] = new Wave(random(2, 8), random(2, 20), random(1, 2));
+}
+
+for (let i = 0; i < 40; i++) {
+  let y = 0;
+  for (wave of waves) {
+    y += wave.evaluate(i);
+  }
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.x = radius * i;
-  mesh.position.y = Math.sin(angles[i]) * offset;
+  mesh.position.x = i * 2;
+  mesh.position.y = y;
   group.add(mesh);
 }
 
@@ -108,12 +133,19 @@ const tick = () => {
   //   const y = base + Math.cos(yangle += xspeed) * yRad;
   //   //m.position.x += x / 70;
   //   m.position.y += y / 20;
-  group.children.forEach((c, i) => {
-    c.position.y = Math.sin(angles[i]) * offset;
-    angles[i] += 0.02;
-    //angles[i] += angleV[i];
-  });
+  // group.children.forEach((c, i) => {
+  //   c.position.y = wave.evaluate(i);
+  // });
   // })
+
+  group.children.forEach((m, i) => {
+    let y: number = 0;
+    for (wave of waves) {
+      y += wave.evaluate(i);
+    }
+    m.position.y = y;
+    wave.update(0.001);
+  });
 
   renderer.render(scene, camera);
   controls.update();
