@@ -1,6 +1,7 @@
 import './scss/app.scss';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import {Mesh} from 'three';
 // Create a canvas
 const canvas: HTMLCanvasElement = document.querySelector('canvas.webgl');
 const sizes = {
@@ -23,18 +24,21 @@ window.addEventListener('resize', () => {
 const scene = new THREE.Scene();
 
 // Add geometries & material
-const geometry = new THREE.SphereGeometry(1, 64, 64);
+const geometry = new THREE.BoxGeometry(4, 4, 4);
 const material = new THREE.MeshNormalMaterial();
-const mesh = new THREE.Mesh(geometry, material);
+const box = new THREE.Mesh(geometry, material);
 // const group = new THREE.Group();
 // const center = new THREE.Vector3();
 // new THREE.Box3().setFromObject(group).getCenter(center);
 // group.position.copy(center).multiplyScalar(-1);
+let angle = 0;
+let angleV = -0.06;
+let angleA = 0.06;
 
 // Add to scene
 const axesHelper = new THREE.AxesHelper(5);
 axesHelper.visible = true;
-scene.add(axesHelper);
+scene.add(axesHelper, box);
 // Add camera and define it's Z axis and FOV
 const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 800);
 camera.position.z = 90;
@@ -54,10 +58,10 @@ renderer.render(scene, camera);
 renderer.setClearColor('#01062D');
 
 // Animation ticks
-const clock = new THREE.Clock();
 const tick = () => {
-  const time = clock.getElapsedTime();
-
+  box.rotation.y = angle;
+  angle += angleV / 50;
+  angleV += angleA / 50;
   renderer.render(scene, camera);
   controls.update();
   window.requestAnimationFrame(tick);
