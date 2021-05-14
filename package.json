@@ -52,7 +52,6 @@
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
-    "gsap": "^3.6.1",
     "three": "^0.128.0"
   }
 }
