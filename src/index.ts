@@ -35,18 +35,19 @@ const sphere = new THREE.Mesh(geometry, material);
 // new THREE.Box3().setFromObject(group).getCenter(center);
 // group.position.copy(center).multiplyScalar(-1);
 let radius = 3;
-let offset = 6;
 let angle = 0;
-let velocity = 0.1;
+let baseRadius = 2;
+let offset = 1;
+let velocity = 0.01;
 let amplitude = 0;
 let period = 0;
 
 function sineWaveScale() {
-  radius = Math.sin(angle) * offset;
+  radius = baseRadius + Math.sin(angle) * offset;
   sphere.scale.x = radius;
   sphere.scale.y = radius;
   sphere.scale.z = radius;
-  angle += velocity;
+  angle += velocity / 90;
 }
 
 function sineWaveY() {
@@ -87,7 +88,7 @@ renderer.setClearColor('#01062D');
 
 // Animation ticks
 const tick = () => {
-  // sineWaveScale();
+  sineWaveScale();
   sineWaveY();
   renderer.render(scene, camera);
   controls.update();
