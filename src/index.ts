@@ -26,22 +26,27 @@ const scene = new THREE.Scene();
 // Add geometries & material
 const geometry = new THREE.CylinderGeometry(1, 1, 2, 64);
 const material = new THREE.MeshNormalMaterial();
-const cylinder = new THREE.Mesh(geometry, material);
 const group = new THREE.Group();
-let radius = 3;
-let radius2 = 3;
-let angle = 0;
-let step = 0.5;
-let limit = 8;
-let baseRadius = 6;
-let offset = 4;
-let velocity = 0;
-let amplitude = 0;
-let period = 0;
-let total = 20;
 
-for (let i = 0; i < total; i++) {
-  for (let j = 0; j < total; j++) {
+class Wave {
+  constructor(public base: number, public offset: number, public total: number) {
+    (this.base = base), (this.offset = offset), (this.total = total);
+  }
+  getTotal() {
+    return this.total;
+  }
+  calculate(x: number, y: number, time: number) {
+    let dx = Math.cos((x / this.total) * (Math.PI * 2)) / 2;
+    let dy = Math.cos((y / this.total) * (Math.PI * 2)) / 2;
+    let theta = -(dx + dy) * 3;
+    return this.base + Math.sin(time * 4 + theta) * this.offset;
+  }
+}
+
+const wave = new Wave(6, 5, 18);
+
+for (let i = 0; i < wave.getTotal(); i++) {
+  for (let j = 0; j < wave.getTotal(); j++) {
     const cylinder = new THREE.Mesh(geometry, material);
     cylinder.position.x = i * 2;
     cylinder.position.z = j * 2;
@@ -49,29 +54,10 @@ for (let i = 0; i < total; i++) {
   }
 }
 
-// for (let i = 0; i < total; i++) {
-//   const cylinder = new THREE.Mesh(geometry, material);
-//   cylinder.position.x = i * 2;
-//   group.add(cylinder);
-// }
-
-console.log(group.children.length);
-
 function sineWaveScale(fps: number) {
-  // for (let i = 0; i < total; i++) {
-  //     let speed = fps * 6;
-  //     let x = Math.cos(i / total * (Math.PI * 2)) / 2;
-  //     let theta = -x * 6;
-  //     let y = baseRadius + Math.sin(speed + theta) * offset;
-  //     group.children[i].scale.y = y;
-  // }
-  for (let i = 0; i < total; i++) {
-    for (let j = 0; j < total; j++) {
-      let x = Math.cos((i / total) * (Math.PI * 2)) / 2;
-      let y = Math.cos((j / total) * (Math.PI * 2)) / 2;
-      let theta = (x + y) * (x + y) * 2;
-      let z = baseRadius + Math.sin(fps * 4 + theta) * offset;
-      group.children[i + j * total].scale.y = z;
+  for (let i = 0; i < wave.getTotal(); i++) {
+    for (let j = 0; j < wave.getTotal(); j++) {
+      group.children[i + j * wave.getTotal()].scale.y = wave.calculate(i, j, fps);
       //group.children[i + j * total].position.y = z;
     }
   }
@@ -83,7 +69,7 @@ group.position.copy(center).multiplyScalar(-1);
 
 // Add to scene
 const axesHelper = new THREE.AxesHelper(5);
-axesHelper.visible = true;
+axesHelper.visible = false;
 scene.add(axesHelper, group);
 // Add camera and define it's Z axis and FOV
 const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 800);
