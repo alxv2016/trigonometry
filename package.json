@@ -52,6 +52,7 @@
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
+    "controlkit": "^0.1.9",
     "three": "^0.128.0"
   }
 }

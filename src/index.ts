@@ -1,7 +1,7 @@
 import './scss/app.scss';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {Mesh} from 'three';
+const ControlKit = require('controlkit');
 // Create a canvas
 const canvas: HTMLCanvasElement = document.querySelector('canvas.webgl');
 const sizes = {
@@ -29,21 +29,53 @@ const material = new THREE.MeshNormalMaterial();
 const group = new THREE.Group();
 
 class Wave {
-  constructor(public base: number, public offset: number, public total: number) {
-    (this.base = base), (this.offset = offset), (this.total = total);
+  constructor(public base: number, public offset: number, public total: number, public amp: number) {
+    (this.base = base), (this.offset = offset), (this.total = total), (this.amp = amp);
   }
   getTotal() {
     return this.total;
   }
   calculate(x: number, y: number, time: number) {
-    let dx = Math.cos((x / this.total) * (Math.PI * 2)) / 2;
-    let dy = Math.cos((y / this.total) * (Math.PI * 2)) / 2;
-    let theta = -(dx + dy) * 3;
-    return this.base + Math.sin(time * 4 + theta) * this.offset;
+    const dx = Math.cos((x / this.total) * (Math.PI * 2)) / 2;
+    const dy = Math.cos((y / this.total) * (Math.PI * 2)) / 2;
+    const theta = -(dx + dy) * this.amp;
+    return this.base + Math.sin(time * this.amp + theta) * this.offset;
   }
 }
 
-const wave = new Wave(6, 5, 18);
+const parameters = {
+  base: 6,
+  offset: 2,
+  amp: 3,
+};
+
+const controlKit = new ControlKit();
+
+let wave = new Wave(parameters.base, 5, 18, 3);
+
+controlKit
+  .addPanel()
+  .addNumberInput(parameters, 'base', {
+    label: 'Base',
+    step: 1,
+    onChange: () => {
+      wave = new Wave(parameters.base, parameters.offset, 18, parameters.amp);
+    },
+  })
+  .addNumberInput(parameters, 'offset', {
+    label: 'Offset',
+    step: 1,
+    onChange: () => {
+      wave = new Wave(parameters.base, parameters.offset, 18, parameters.amp);
+    },
+  })
+  .addNumberInput(parameters, 'amp', {
+    label: 'Amplitude',
+    step: 0.1,
+    onChange: () => {
+      wave = new Wave(parameters.base, parameters.offset, 18, parameters.amp);
+    },
+  });
 
 for (let i = 0; i < wave.getTotal(); i++) {
   for (let j = 0; j < wave.getTotal(); j++) {
