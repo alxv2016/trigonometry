@@ -47,11 +47,12 @@ const parameters = {
   base: 6,
   offset: 2,
   amp: 3,
+  total: 30,
 };
 
 const controlKit = new ControlKit();
 
-let wave = new Wave(parameters.base, 5, 18, 3);
+let wave = new Wave(parameters.base, parameters.offset, parameters.total, parameters.amp);
 
 controlKit
   .addPanel()
@@ -59,21 +60,21 @@ controlKit
     label: 'Base',
     step: 1,
     onChange: () => {
-      wave = new Wave(parameters.base, parameters.offset, 18, parameters.amp);
+      wave = new Wave(parameters.base, parameters.offset, parameters.total, parameters.amp);
     },
   })
   .addNumberInput(parameters, 'offset', {
     label: 'Offset',
     step: 1,
     onChange: () => {
-      wave = new Wave(parameters.base, parameters.offset, 18, parameters.amp);
+      wave = new Wave(parameters.base, parameters.offset, parameters.total, parameters.amp);
     },
   })
   .addNumberInput(parameters, 'amp', {
     label: 'Amplitude',
     step: 0.1,
     onChange: () => {
-      wave = new Wave(parameters.base, parameters.offset, 18, parameters.amp);
+      wave = new Wave(parameters.base, parameters.offset, parameters.total, parameters.amp);
     },
   });
 
