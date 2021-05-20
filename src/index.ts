@@ -24,7 +24,7 @@ window.addEventListener('resize', () => {
 const scene = new THREE.Scene();
 
 // Add geometries & material
-const geometry = new THREE.CylinderGeometry(1, 1, 2, 64);
+const geometry = new THREE.SphereGeometry(1, 64, 64);
 const material = new THREE.MeshNormalMaterial();
 const group = new THREE.Group();
 
@@ -43,56 +43,37 @@ class Wave {
   }
 }
 
-const parameters = {
-  base: 6,
-  offset: 2,
-  amp: 3,
-  total: 30,
-};
+const total = 40;
 
-const controlKit = new ControlKit();
-
-let wave = new Wave(parameters.base, parameters.offset, parameters.total, parameters.amp);
-
-controlKit
-  .addPanel()
-  .addNumberInput(parameters, 'base', {
-    label: 'Base',
-    step: 1,
-    onChange: () => {
-      wave = new Wave(parameters.base, parameters.offset, parameters.total, parameters.amp);
-    },
-  })
-  .addNumberInput(parameters, 'offset', {
-    label: 'Offset',
-    step: 1,
-    onChange: () => {
-      wave = new Wave(parameters.base, parameters.offset, parameters.total, parameters.amp);
-    },
-  })
-  .addNumberInput(parameters, 'amp', {
-    label: 'Amplitude',
-    step: 0.1,
-    onChange: () => {
-      wave = new Wave(parameters.base, parameters.offset, parameters.total, parameters.amp);
-    },
-  });
-
-for (let i = 0; i < wave.getTotal(); i++) {
-  for (let j = 0; j < wave.getTotal(); j++) {
+for (let r = 4; r < total; r += 6) {
+  const slice = (Math.PI * 2) / r;
+  for (let i = 0; i < total; i++) {
     const cylinder = new THREE.Mesh(geometry, material);
-    cylinder.position.x = i * 2;
-    cylinder.position.z = j * 2;
+    cylinder.position.x = Math.cos(i * slice) * r;
+    cylinder.position.y = Math.sin(i * slice) * r;
     group.add(cylinder);
   }
 }
 
+function calculate(x: number, y: number, time: number) {
+  const dx = Math.cos((x / total) * (Math.PI * 2)) / 2;
+  const dy = Math.cos((y / total) * (Math.PI * 2)) / 2;
+  const theta = -(dx + dy) * 2;
+  return 2 + Math.sin(time * 2 + theta) * 4;
+}
+
+// for (let i = 0; i < total; i++) {
+//   const cylinder = new THREE.Mesh(geometry, material);
+//   cylinder.position.x = Math.cos(i * slice) * radius;
+//   cylinder.position.y = Math.sin(i * slice) * radius;
+//   group.add(cylinder);
+// }
+
 function sineWaveScale(fps: number) {
-  for (let i = 0; i < wave.getTotal(); i++) {
-    for (let j = 0; j < wave.getTotal(); j++) {
-      group.children[i + j * wave.getTotal()].scale.y = wave.calculate(i, j, fps);
-      //group.children[i + j * total].position.y = z;
-    }
+  for (let i = 0; i < total; i++) {
+    const slice = (Math.PI * 2) / i;
+    group.children[i].position.x = i + Math.sin(i + fps / 8) * slice;
+    group.children[i].position.y = i + Math.cos(i + fps / 8) * slice;
   }
 }
 
