@@ -45,6 +45,14 @@ class Wave {
 
 const total = 40;
 
+// for (let i = 0; i < total; i++) {
+//   const slice = Math.PI * 2 / (total / 2);
+//   const cylinder = new THREE.Mesh(geometry, material);
+//   cylinder.position.x = Math.cos(i * slice) * total / 2;
+//   cylinder.position.y = Math.sin(i * slice) * total / 2;
+//   group.add(cylinder);
+// }
+
 for (let r = 4; r < total; r += 6) {
   const slice = (Math.PI * 2) / r;
   for (let i = 0; i < total; i++) {
@@ -55,13 +63,6 @@ for (let r = 4; r < total; r += 6) {
   }
 }
 
-function calculate(x: number, y: number, time: number) {
-  const dx = Math.cos((x / total) * (Math.PI * 2)) / 2;
-  const dy = Math.cos((y / total) * (Math.PI * 2)) / 2;
-  const theta = -(dx + dy) * 2;
-  return 2 + Math.sin(time * 2 + theta) * 4;
-}
-
 // for (let i = 0; i < total; i++) {
 //   const cylinder = new THREE.Mesh(geometry, material);
 //   cylinder.position.x = Math.cos(i * slice) * radius;
@@ -69,13 +70,33 @@ function calculate(x: number, y: number, time: number) {
 //   group.add(cylinder);
 // }
 
+console.log(group.children.length);
+
 function sineWaveScale(fps: number) {
-  for (let i = 0; i < total; i++) {
-    const slice = (Math.PI * 2) / i;
-    group.children[i].position.x = i + Math.sin(i + fps / 8) * slice;
-    group.children[i].position.y = i + Math.cos(i + fps / 8) * slice;
+  for (let r = 4; r < total; r += 6) {
+    const slice = (Math.PI * 2) / r;
+    const radial = total + (Math.sin(fps) * total) / 2;
+    for (let i = 0; i < group.children.length; i++) {
+      group.children[i].position.x = Math.cos(i * slice) * radial;
+      group.children[i].position.y = Math.sin(i * slice) * radial;
+    }
   }
+  // for (let i = 0; i < group.children.length; i++) {
+  //   const slice = (Math.PI * 2) / total;
+  //   const radial = total + Math.sin(fps) * total / 2;
+  //   group.children[i].position.x = Math.cos(i / 2 * slice) * radial;
+  //   group.children[i].position.y = Math.sin(i / 2 * slice) * radial;
+  // }
 }
+
+// function sineWaveScale(fps: number) {
+//   for (let i = 0; i < total; i++) {
+//     const slice = Math.PI * 2 / (total / 2);
+//     const radial = 20 + Math.sin(fps) * 10;
+//     group.children[i].position.x = Math.cos(i * slice) * radial;
+//     group.children[i].position.y = Math.sin(i * slice) * radial;
+//   }
+// }
 
 const center = new THREE.Vector3();
 new THREE.Box3().setFromObject(group).getCenter(center);
