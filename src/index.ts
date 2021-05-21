@@ -43,7 +43,7 @@ class Wave {
   }
 }
 
-const total = 40;
+const total = 200;
 
 // for (let i = 0; i < total; i++) {
 //   const slice = Math.PI * 2 / (total / 2);
@@ -52,16 +52,36 @@ const total = 40;
 //   cylinder.position.y = Math.sin(i * slice) * total / 2;
 //   group.add(cylinder);
 // }
+let points: any = [];
 
-for (let r = 4; r < total; r += 6) {
-  const slice = (Math.PI * 2) / r;
-  for (let i = 0; i < total; i++) {
-    const cylinder = new THREE.Mesh(geometry, material);
-    cylinder.position.x = Math.cos(i * slice) * r;
-    cylinder.position.y = Math.sin(i * slice) * r;
-    group.add(cylinder);
+for (let r = 12; r < total; r += 12) {
+  for (let i = 0; i < r / 2; i++) {
+    let theta = (i * (Math.PI * 2)) / (r / 2);
+    points.push({
+      r,
+      theta,
+    });
   }
 }
+
+for (let p of points) {
+  const cos = Math.cos(p.theta);
+  const sin = Math.sin(p.theta);
+  const cylinder = new THREE.Mesh(geometry, material);
+  cylinder.position.x = p.r * cos;
+  cylinder.position.y = p.r * sin;
+  group.add(cylinder);
+}
+
+// for (let r = 12; r < total; r += 12) {
+//   const slice = (Math.PI * 2) / r;
+//   for (let i = 0; i < r / 2; i++) {
+//     const cylinder = new THREE.Mesh(geometry, material);
+//     cylinder.position.x = Math.cos(i * slice) * r;
+//     cylinder.position.y = Math.sin(i * slice) * r;
+//     group.add(cylinder);
+//   }
+// }
 
 // for (let i = 0; i < total; i++) {
 //   const cylinder = new THREE.Mesh(geometry, material);
@@ -70,24 +90,35 @@ for (let r = 4; r < total; r += 6) {
 //   group.add(cylinder);
 // }
 
-console.log(group.children.length);
-
 function sineWaveScale(fps: number) {
-  for (let r = 4; r < total; r += 6) {
-    const slice = (Math.PI * 2) / r;
-    const radial = total + (Math.sin(fps) * total) / 2;
-    for (let i = 0; i < group.children.length; i++) {
-      group.children[i].position.x = Math.cos(i * slice) * radial;
-      group.children[i].position.y = Math.sin(i * slice) * radial;
-    }
-  }
-  // for (let i = 0; i < group.children.length; i++) {
-  //   const slice = (Math.PI * 2) / total;
-  //   const radial = total + Math.sin(fps) * total / 2;
-  //   group.children[i].position.x = Math.cos(i / 2 * slice) * radial;
-  //   group.children[i].position.y = Math.sin(i / 2 * slice) * radial;
-  // }
+  points.forEach((p: any, i: number) => {
+    const cos = Math.cos(p.theta);
+    const sin = Math.sin(p.theta);
+    let t = fps + p.r / 70;
+    const val = Math.cos(t);
+    let r = p.r / 2 + val * 6;
+    group.children[i].position.x = r * cos;
+    group.children[i].position.y = r * sin;
+    group.children[i].position.z = Math.cos(p.r + fps + p.r / 70) * 12;
+  });
 }
+
+// for (let r = 4; r < total; r += 6) {
+//   const slice = (Math.PI * 2) / 8;
+//   const radial = total + (Math.sin(fps) * total) / 2;
+//   for (let i = 0; i < group.children.length; i++) {
+//     // group.children[i].position.x = Math.cos(i * slice) * radial;
+//     // group.children[i].position.y = Math.sin(i * slice) * radial;
+//     group.children[i].position.x = Math.cos(i * slice) * radial;
+//     group.children[i].position.y = Math.sin(i * slice) * radial;
+//   }
+// }
+// for (let i = 0; i < group.children.length; i++) {
+//   const slice = (Math.PI * 2) / total;
+//   const radial = total + Math.sin(fps) * total / 2;
+//   group.children[i].position.x = Math.cos(i / 2 * slice) * radial;
+//   group.children[i].position.y = Math.sin(i / 2 * slice) * radial;
+// }
 
 // function sineWaveScale(fps: number) {
 //   for (let i = 0; i < total; i++) {
