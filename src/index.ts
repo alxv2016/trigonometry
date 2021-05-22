@@ -24,7 +24,7 @@ window.addEventListener('resize', () => {
 const scene = new THREE.Scene();
 
 // Add geometries & material
-const geometry = new THREE.SphereGeometry(1, 64, 64);
+const geometry = new THREE.SphereGeometry(0.5, 64, 64);
 const material = new THREE.MeshNormalMaterial();
 const group = new THREE.Group();
 
@@ -43,28 +43,12 @@ class Wave {
   }
 }
 
-const total = 50;
+const total = 100;
+const amp = 8;
+const speed = 1.25;
 
-// for (let i = 0; i < total; i++) {
-//   const slice = Math.PI * 2 / (total / 2);
-//   const cylinder = new THREE.Mesh(geometry, material);
-//   cylinder.position.x = Math.cos(i * slice) * total / 2;
-//   cylinder.position.y = Math.sin(i * slice) * total / 2;
-//   group.add(cylinder);
-// }
 let points: any = [];
 
-// for (let r = 12; r < total; r += 12) {
-//   for (let i = 0; i < r / 2; i++) {
-//     let theta = (i * (Math.PI * 2)) / (r / 2);
-//     points.push({
-//       r,
-//       theta,
-//     });
-//   }
-// }
-
-// v2
 for (let r = 4; r < total; r += 6) {
   for (let i = 0; i < r; i++) {
     let theta = (i * Math.PI * 2) / r;
@@ -75,8 +59,6 @@ for (let r = 4; r < total; r += 6) {
   }
 }
 
-console.log(points);
-// v2
 for (let p of points) {
   const cylinder = new THREE.Mesh(geometry, material);
   cylinder.position.x = Math.cos(p.theta) * p.r;
@@ -84,59 +66,15 @@ for (let p of points) {
   group.add(cylinder);
 }
 
-// for (let r = 12; r < total; r += 12) {
-//   const slice = (Math.PI * 2) / r;
-//   for (let i = 0; i < r / 2; i++) {
-//     const cylinder = new THREE.Mesh(geometry, material);
-//     cylinder.position.x = Math.cos(i * slice) * r;
-//     cylinder.position.y = Math.sin(i * slice) * r;
-//     group.add(cylinder);
-//   }
-// }
-
-// for (let i = 0; i < total; i++) {
-//   const cylinder = new THREE.Mesh(geometry, material);
-//   cylinder.position.x = Math.cos(i * slice) * radius;
-//   cylinder.position.y = Math.sin(i * slice) * radius;
-//   group.add(cylinder);
-// }
-
 function sineWaveScale(fps: number) {
+  let velocity = fps * speed;
   points.forEach((p: any, i: number) => {
-    // const val = Math.cos(fps);
-    // let r = p.r / 2 + val * 6;
-    let r = p.r + 8 + Math.cos(fps + p.r + p.r) * 8;
+    let r = p.r + amp + Math.cos(velocity + p.r + p.r) * amp;
     group.children[i].position.x = Math.cos(p.theta) * r;
     group.children[i].position.y = Math.sin(p.theta) * r;
-    //group.children[i].position.z = Math.cos(p.r + fps + p.r / 70) * 12;
+    group.children[i].position.z = Math.cos(p.r + velocity) * (amp * 2);
   });
 }
-
-// for (let r = 4; r < total; r += 6) {
-//   const slice = (Math.PI * 2) / 8;
-//   const radial = total + (Math.sin(fps) * total) / 2;
-//   for (let i = 0; i < group.children.length; i++) {
-//     // group.children[i].position.x = Math.cos(i * slice) * radial;
-//     // group.children[i].position.y = Math.sin(i * slice) * radial;
-//     group.children[i].position.x = Math.cos(i * slice) * radial;
-//     group.children[i].position.y = Math.sin(i * slice) * radial;
-//   }
-// }
-// for (let i = 0; i < group.children.length; i++) {
-//   const slice = (Math.PI * 2) / total;
-//   const radial = total + Math.sin(fps) * total / 2;
-//   group.children[i].position.x = Math.cos(i / 2 * slice) * radial;
-//   group.children[i].position.y = Math.sin(i / 2 * slice) * radial;
-// }
-
-// function sineWaveScale(fps: number) {
-//   for (let i = 0; i < total; i++) {
-//     const slice = Math.PI * 2 / (total / 2);
-//     const radial = 20 + Math.sin(fps) * 10;
-//     group.children[i].position.x = Math.cos(i * slice) * radial;
-//     group.children[i].position.y = Math.sin(i * slice) * radial;
-//   }
-// }
 
 const center = new THREE.Vector3();
 new THREE.Box3().setFromObject(group).getCenter(center);
@@ -150,7 +88,7 @@ scene.add(axesHelper, group);
 const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 800);
 //camera.position.x = 90;
 // camera.position.y = 90;
-camera.position.z = 90;
+camera.position.z = 120;
 
 // controls
 const controls = new OrbitControls(camera, canvas);
