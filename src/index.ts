@@ -43,7 +43,7 @@ class Wave {
   }
 }
 
-const total = 200;
+const total = 50;
 
 // for (let i = 0; i < total; i++) {
 //   const slice = Math.PI * 2 / (total / 2);
@@ -54,9 +54,20 @@ const total = 200;
 // }
 let points: any = [];
 
-for (let r = 12; r < total; r += 12) {
-  for (let i = 0; i < r / 2; i++) {
-    let theta = (i * (Math.PI * 2)) / (r / 2);
+// for (let r = 12; r < total; r += 12) {
+//   for (let i = 0; i < r / 2; i++) {
+//     let theta = (i * (Math.PI * 2)) / (r / 2);
+//     points.push({
+//       r,
+//       theta,
+//     });
+//   }
+// }
+
+// v2
+for (let r = 4; r < total; r += 6) {
+  for (let i = 0; i < r; i++) {
+    let theta = (i * Math.PI * 2) / r;
     points.push({
       r,
       theta,
@@ -64,12 +75,12 @@ for (let r = 12; r < total; r += 12) {
   }
 }
 
+console.log(points);
+// v2
 for (let p of points) {
-  const cos = Math.cos(p.theta);
-  const sin = Math.sin(p.theta);
   const cylinder = new THREE.Mesh(geometry, material);
-  cylinder.position.x = p.r * cos;
-  cylinder.position.y = p.r * sin;
+  cylinder.position.x = Math.cos(p.theta) * p.r;
+  cylinder.position.y = Math.sin(p.theta) * p.r;
   group.add(cylinder);
 }
 
@@ -92,14 +103,12 @@ for (let p of points) {
 
 function sineWaveScale(fps: number) {
   points.forEach((p: any, i: number) => {
-    const cos = Math.cos(p.theta);
-    const sin = Math.sin(p.theta);
-    let t = fps + p.r / 70;
-    const val = Math.cos(t);
-    let r = p.r / 2 + val * 6;
-    group.children[i].position.x = r * cos;
-    group.children[i].position.y = r * sin;
-    group.children[i].position.z = Math.cos(p.r + fps + p.r / 70) * 12;
+    // const val = Math.cos(fps);
+    // let r = p.r / 2 + val * 6;
+    let r = p.r + 8 + Math.cos(fps + p.r + p.r) * 8;
+    group.children[i].position.x = Math.cos(p.theta) * r;
+    group.children[i].position.y = Math.sin(p.theta) * r;
+    //group.children[i].position.z = Math.cos(p.r + fps + p.r / 70) * 12;
   });
 }
 
@@ -139,8 +148,8 @@ axesHelper.visible = false;
 scene.add(axesHelper, group);
 // Add camera and define it's Z axis and FOV
 const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 1, 800);
-camera.position.x = 90;
-camera.position.y = 90;
+//camera.position.x = 90;
+// camera.position.y = 90;
 camera.position.z = 90;
 
 // controls
